@@ -1,60 +1,59 @@
 # circuit-dx
 
-**Working title:** *Does the Tester Matter? Measurement Hardware Effects on ML-Based Analog Circuit Fault Diagnosis*
+**Does the Tester Matter? Measurement Hardware Effects on ML-Based Analog Circuit Fault Diagnosis**
 
-An independent undergraduate research project by Stav Shaham (Software Engineering, Embry-Riddle Aeronautical University, Prescott).
+Stav Shaham · Department of Software Engineering, Embry-Riddle Aeronautical University, Prescott, AZ
 
-> **Status:** 🟡 Setup — Weeks 1–2 (repository, inventory, board bring-up)
+**Status:** In progress — experimental setup
 
 ---
 
-## Overview
+## Abstract
 
-When an analog circuit misbehaves, which component is to blame? This project trains machine-learning models to identify the faulty component in small analog filter circuits from their measured frequency response, and asks how much the **measurement hardware** affects how well that works.
+Machine-learning approaches to analog circuit fault diagnosis are typically developed and evaluated on simulated data or on laboratory-grade instruments. In practice, low-cost test equipment often relies on microcontroller-based data acquisition, whose analog-to-digital converters differ substantially in resolution, noise and linearity. This project investigates how these measurement-hardware characteristics affect diagnostic accuracy.
 
-Models are trained mainly on **SPICE simulations** (ngspice) with injected faults and realistic component tolerances, then tested on **real breadboard circuits** measured by three low-cost microcontrollers: an ESP32, a Raspberry Pi Pico 2 W and an Arduino Nano. All three measure the same signal at the same moment, so differences in accuracy come from the hardware, not the circuit.
+Classifiers are trained primarily on SPICE simulations with injected component faults and realistic tolerances, then evaluated on physical circuits measured simultaneously by three low-cost microcontrollers: an ESP32, a Raspberry Pi Pico 2 W and an Arduino Nano. Because all three devices sample the same stimulus at the same time, observed differences in accuracy can be attributed to the measurement hardware rather than to the circuit under test.
 
-## Research questions
+## Research Questions
 
-| # | Question |
+| ID | Question |
 |---|---|
-| **RQ1** | **Sim-to-real gap:** How much accuracy does a simulation-trained model lose on real measurements, for each board? |
-| **RQ2** | **Bits vs. quality:** How do ADC resolution and noise affect diagnosis accuracy, and which faults are affected first? |
-| **RQ3** | **Cross-device transfer:** Does a model trained on one board's data work on another's? Does calibration fix it? |
-| **RQ4** | **Deployment:** Which models fit and run on each microcontroller, and how fast? |
+| **RQ1** | **Simulation-to-reality gap:** How much diagnostic accuracy does a simulation-trained model lose when applied to physical measurements from each device? |
+| **RQ2** | **Resolution versus quality:** How do ADC resolution and noise affect diagnostic accuracy, and which fault types degrade first? |
+| **RQ3** | **Cross-device transfer:** Does a model trained on one device's measurements generalize to another's, and can calibration close the gap? |
+| **RQ4** | **On-device deployment:** Which models fit within each microcontroller's resources, and what are their inference latency and memory requirements? |
 
-## Hardware
+## Experimental Setup
 
-| Board | Chip | ADC | DAC | Role |
+### Measurement Devices
+
+| Device | Processor | ADC | DAC | Role |
 |---|---|---|---|---|
-| ESP32 devboard (ELEGOO, CP2102) | ESP32, Xtensa 240 MHz | 12-bit (noisy, nonlinear) | ✅ 8-bit (GPIO25/26) | **DAC** generates the test signal; **ADC** measures like the others (device A) |
-| Raspberry Pi Pico 2 W | RP2350, Cortex-M33 150 MHz | 12-bit | ❌ | Measurement device B |
-| Arduino Nano (CH340) | ATmega328P, 16 MHz | 10-bit | ❌ | Measurement device C |
+| ESP32 (ESP32-WROOM-32) | Xtensa LX6, 240 MHz | 12-bit | 8-bit | Stimulus generation (DAC) and measurement (ADC) |
+| Raspberry Pi Pico 2 W | RP2350 (Arm Cortex-M33), 150 MHz | 12-bit | — | Measurement |
+| Arduino Nano | ATmega328P, 16 MHz | 10-bit | — | Measurement |
 
-**Why these three:** the ESP32 and Pico are both 12-bit but differ in noise and linearity (this isolates **ADC quality**); the Pico and Nano are both relatively clean but differ in resolution (this isolates **bits**).
+The device selection allows two effects to be separated. The ESP32 and Pico 2 W share a nominal 12-bit resolution but differ in noise and linearity, isolating **converter quality**. The Pico 2 W and Nano differ primarily in nominal resolution, isolating **bit depth**.
 
-Everything else is from starter kits: resistors, ceramic 100 nF ("104") capacitors, potentiometers, breadboards, jumper wires and a multimeter. **No budget required.**
-
-## Circuits
-
-### Circuit 1: Two-stage RC low-pass filter
+### Circuit Under Test 1: Two-Stage RC Low-Pass Filter
 
 ```
-ESP32 DAC ──[1k protect]──[R1]──┬──[R2]──┬──→ ESP32 ADC (GPIO34)
-                                C1       C2 ├─→ Pico ADC  (GP26)
-                                │        │  └─→ Nano A0
-GND ────────────────────────────┴────────┴── all boards' GND connected
+ESP32 DAC ──[R_p]──[R1]──┬──[R2]──┬──→ ESP32 ADC (GPIO34)
+                         C1       C2 ├─→ Pico 2 W ADC (GP26)
+                         │        │  └─→ Nano A0
+GND ─────────────────────┴────────┴── common ground (all devices)
 ```
 
-| Part | Value |
+| Component | Value |
 |---|---|
 | R1, R2 | 10 kΩ |
-| C1, C2 | 100 nF ceramic (104) |
-| Protection resistor | 1 kΩ (never faulted; included in the netlist) |
-| Cutoff | ~160 Hz per stage |
-| Sweep | 10 Hz – 1.5 kHz, 5 kHz sampling on all boards |
+| C1, C2 | 100 nF (ceramic) |
+| R_p (series protection, not faulted) | 1 kΩ |
+| Cutoff frequency (per stage) | ≈ 160 Hz |
+| Stimulus | Sine sweep, 10 Hz – 1.5 kHz |
+| Sampling rate | 5 kHz on all devices |
 
-Reference transfer function (R₁ includes the 1 kΩ protection resistor):
+The reference transfer function, with R1 including the series protection resistor, is
 
 ```
                                  1
@@ -62,120 +61,101 @@ H(s) = ────────────────────────�
         1 + s·(R1·C1 + R1·C2 + R2·C2) + s²·(R1·R2·C1·C2)
 ```
 
-Evaluate at s = jω (ω = 2πf); the measured gain is |H(jω)|.
+evaluated at s = jω (ω = 2πf), where the measured quantity is the gain |H(jω)|.
 
-### Circuit 2: Passive band-pass filter (after Circuit 1 works)
+### Circuit Under Test 2: Passive Band-Pass Filter
 
-High-pass (100 nF + 10 kΩ biased to 1.65 V) followed by low-pass (2 kΩ + 100 nF), for a passband of roughly **160–800 Hz**. The 1.65 V bias comes from a 10 kΩ/10 kΩ divider steadied by a 10 µF electrolytic capacitor.
+A high-pass stage (100 nF, 10 kΩ referenced to a 1.65 V bias) followed by a low-pass stage (2 kΩ, 100 nF), giving a passband of approximately 160–800 Hz. The bias is derived from a 10 kΩ/10 kΩ divider decoupled by a 10 µF capacitor.
 
-### Fault model
+### Fault Model
 
-Each faultable component (R1, R2, C1, C2) gets four fault types, giving **16 fault classes + healthy**:
+Each faultable component (R1, R2, C1, C2) is subjected to the fault types below, yielding 16 fault classes plus a nominal (fault-free) class.
 
-| Fault | How it's built |
+| Fault type | Physical realization |
 |---|---|
-| Small drift (+10%) | 10 kΩ + 1 kΩ in series (or a potentiometer) |
-| Medium drift (+20%) | 10 kΩ + 2 kΩ in series |
-| Large drift (−50% / +100%) | Two parts in parallel / in series |
-| Open | Component removed |
-| Short | Jumper across the component |
+| Parametric drift, +10% | 10 kΩ + 1 kΩ in series, or potentiometer |
+| Parametric drift, +20% | 10 kΩ + 2 kΩ in series |
+| Parametric drift, −50% / +100% | Two components in parallel / in series |
+| Open circuit | Component removed |
+| Short circuit | Component bypassed |
 
-Some faults look identical (e.g., C2 short vs. R2 open). These **ambiguity groups** are identified from simulation and reported, not treated as errors.
+Fault classes that produce indistinguishable responses (for example, a shorted C2 and an open R2) form **ambiguity groups**. These are identified from simulation and reported explicitly rather than treated as classification errors.
 
-## Method
+## Methodology
 
-1. **Simulate** circuits in ngspice with random tolerances (±5–10%) and injected faults → simulated dataset.
-2. **Measure** real circuits: the ESP32 generates a sine sweep, and all three boards compute per-frequency amplitudes on-board with the same Goertzel code.
-3. **Train** models (random forest, SVM, decision tree, small neural network) on gain-per-frequency features.
-4. **Evaluate** sim-to-real accuracy, cross-device transfer, and a virtual sweep over ADC resolution and noise.
-5. **Deploy** models to the boards via emlearn and measure accuracy, memory and latency.
+1. **Simulation.** Circuits are simulated in ngspice with component values sampled within tolerance (±5–10%) and with injected faults, producing a labelled training dataset.
+2. **Measurement.** The ESP32 generates a sine sweep, and each device computes per-frequency amplitudes on-board using the Goertzel algorithm.
+3. **Training.** Random forest, support vector machine, decision tree and small neural network classifiers are trained on gain-per-frequency features.
+4. **Evaluation.** Models are evaluated on physical measurements from each device, across devices, and against a simulated sweep of ADC resolution and noise levels.
+5. **Deployment.** Selected models are exported to C via emlearn and evaluated on each device for accuracy, memory footprint and latency.
 
-### Fair-comparison rules
+### Controls
 
-- Identical algorithm (shared Goertzel library) on all boards
-- Identical, timer-driven sample rate (5 kHz) on all boards
-- All boards measure the same sweep simultaneously, triggered by an ESP32 sync pulse
-- All three ADC inputs stay connected for every session, so the circuit's loading never changes
+- All devices execute an identical measurement algorithm from a single shared library.
+- All devices sample at an identical, timer-driven rate.
+- All devices measure each sweep simultaneously, synchronized by a trigger signal from the ESP32.
+- All ADC inputs remain connected throughout every session, holding circuit loading constant.
+- Every physical component is individually labelled and measured, and each measurement session records the exact components used.
 
-## Repository structure
+## Repository Structure
 
 ```
 circuit-dx/
-├── README.md
-├── logs/               research log: one file per work session, named by date
-│   ├── _TEMPLATE.md    copy this to start a new day's log
-│   └── 2026-10-14.md   e.g., YYYY-MM-DD.md
-├── parts.csv           every labelled physical part (nominal + measured value)
-├── circuits/           SPICE netlists, KiCad schematics, breadboard photos
-├── firmware/           PlatformIO project: [env:esp32dev] [env:nano] [env:pico2w]
-│   ├── lib/goertzel/   shared measurement code used by all boards
-│   └── src/
-├── sim/                fault injection, tolerance sampling, ngspice runs
+├── circuits/                SPICE netlists, schematics, breadboard photographs
 ├── data/
-│   ├── sim/            generated (reproducible from code)
-│   └── real/           measured: esp32/ pico2w/ nano/
-├── ml/                 training, evaluation, degrade.py (virtual ADCs)
-├── results/            figures and tables, tagged per experiment
-└── paper/              write-up / poster
+│   ├── real/                physical measurements, by device
+│   │   ├── esp32/
+│   │   ├── nano/
+│   │   └── pico2w/
+│   └── sim/                 simulated data (reproducible from sim/)
+├── firmware/                Arduino sketchbook
+│   ├── esp32_sweep/
+│   │   └── esp32_sweep.ino      stimulus generation, measurement, synchronization
+│   ├── libraries/
+│   │   └── Goertzel/            shared measurement library
+│   ├── nano_measure/
+│   │   └── nano_measure.ino     measurement
+│   └── pico2w_measure/
+│       └── pico2w_measure.ino   measurement
+├── logs/                    dated research log (YYYY-MM-DD.md)
+├── ml/                      model training, evaluation, ADC degradation study
+├── paper/                   manuscript and poster
+├── results/                 figures and tables
+├── sim/                     fault injection and circuit simulation
+├── parts.csv                component inventory with nominal and measured values
+└── README.md
 ```
 
-## Research log
+## Building the Firmware
 
-Every work session gets its own file in `logs/`, named by date (`logs/YYYY-MM-DD.md`). Copy `logs/_TEMPLATE.md` to start a new one. If you work twice in one day, add a second section to the same file rather than creating a new one.
+The firmware is built with Arduino IDE 2.x using the following board packages:
 
-Each log records what was done, what was measured (with exact part labels), what surprised you, and what's next. Together they are the lab notebook behind the paper's methods section.
-
-Commit each log with the work it describes, e.g., `docs(logs): 2026-10-14 — repo setup and research questions`.
-
-## Tools
-
-All free.
-
-| Area | Tools |
-|---|---|
-| Firmware | CLion + PlatformIO; Pico C SDK (CMake) as fallback for the Pico 2 W |
-| Simulation | ngspice, PySpice, LTspice (visual checks) |
-| ML & analysis | Python, NumPy, pandas, scikit-learn, PyTorch (CPU), Plotly, PyCharm |
-| Deployment | emlearn |
-| Data logging | pyserial |
-| Schematics | KiCad |
-| Drivers | CP2102 (ESP32), CH340 (Nano) |
-
-## Timeline (spring + summer 2027)
-
-| Phase | Weeks | Work |
+| Device | Board package | Board selection |
 |---|---|---|
-| **Core** | 1–2 | Inventory, part measurements, build Circuit 1, reference curve |
-| | 3–5 | Shared Goertzel library + ESP32 sweep firmware; verify against theory |
-| | 6–7 | SPICE pipeline + simulated dataset |
-| | 8–10 | Real ESP32 data; RQ1 |
-| **Extension A** | 11–12 | Nano firmware, three-board wiring, sync |
-| | 13–14 | Pico 2 W firmware |
-| | 15–17 | Three-board sessions; RQ2 + RQ3; virtual degradation sweep |
-| **Extension B** | 18–20 | On-device deployment; RQ4 |
-| **Write-up** | 21–23 | Paper or poster, public release |
+| ESP32 | esp32 (Espressif Systems) | ESP32 Dev Module |
+| Arduino Nano | Arduino AVR Boards | Arduino Nano, processor ATmega328P (Old Bootloader) for most clone boards |
+| Raspberry Pi Pico 2 W | Raspberry Pi Pico/RP2040/RP2350 (Earle F. Philhower, III) | Raspberry Pi Pico 2W |
 
-The core alone is a complete study; extensions are added as time allows.
+The `firmware/` directory is an Arduino sketchbook. Setting the IDE's **Sketchbook location** (File → Preferences) to this directory makes the shared `Goertzel` library available to all three sketches.
 
-## Git workflow
+## Software Dependencies
 
-- **Branching:** `main` always works. Use short-lived branches such as `feat/goertzel-firmware`, `feat/fault-injection` and `exp/rq2-resolution-sweep`.
-- **Conventional commits**, scoped by area and board:
-  - `feat(fw/esp32): add DAC sine sweep 10Hz–1.5kHz`
-  - `fix(fw/nano): set EXTERNAL reference before first analogRead`
-  - `hw(circuit1): add 1k protection resistor at DAC output`
-  - `data(real): session 07 — C1 +100% drift, 10 sweeps, all boards`
-  - `exp(rq1): sim-only model evaluated on real set`
-- **Atomicity:** one commit per measurement session. Real data can't be regenerated, so each session records the fault, the exact labelled parts used, and which boards measured.
-- **Tags:** tag every verified firmware milestone (`fw-v0.1-esp32-verified`) and every result set used in the paper (`results-rq1-v1`), so every figure can be reproduced exactly.
+| Purpose | Software |
+|---|---|
+| Firmware | Arduino IDE 2.x |
+| Circuit simulation | ngspice, PySpice |
+| Data acquisition | Python, pyserial |
+| Analysis and modelling | NumPy, pandas, scikit-learn, PyTorch, Plotly |
+| Model deployment | emlearn |
+| Schematics | KiCad |
 
-## Safety notes
+## Reproducibility
 
-- Everything runs at 3.3 V from USB. **Never connect the adjustable bench power supply to the boards.**
-- The Nano is a 5 V board: send signals **only from the ESP32 to the Nano**, never the other way.
-- Call `analogReference(EXTERNAL)` on the Nano **before** any `analogRead()` when AREF is connected.
-- Only short across passive components, never across the power rails.
+- Simulated datasets are fully regenerable from the code in `sim/`.
+- Physical measurement sessions are committed individually, each with the fault configuration, component labels and participating devices.
+- Firmware versions and result sets used in publications are identified by Git tags.
+- Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
 
 ## License
 
-To be decided before public release (MIT suggested for code, CC BY 4.0 for data).
+License terms will be specified prior to public release.
