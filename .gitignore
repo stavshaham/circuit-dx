@@ -1,2 +1,3 @@
+# Git will ignore these files and will not push them into git.
 .venv/
 __pycache__/
