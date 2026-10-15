@@ -154,7 +154,50 @@ The `firmware/` directory is an Arduino sketchbook. Setting the IDE's **Sketchbo
 - Simulated datasets are fully regenerable from the code in `sim/`.
 - Physical measurement sessions are committed individually, each with the fault configuration, component labels and participating devices.
 - Firmware versions and result sets used in publications are identified by Git tags.
-- Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+- Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (see [Commit Conventions](#commit-conventions)).
+
+## Commit Conventions
+
+Every commit message follows the format:
+
+```
+type(scope): description
+```
+
+- **type** — the kind of change.
+- **scope** *(optional)* — the part of the project affected. Omitted when a change applies to the whole repository.
+- **description** — a short summary in the imperative mood ("add", not "added").
+
+Each commit contains a single logical change.
+
+### Types
+
+| Type | Purpose | Example |
+|---|---|---|
+| `feat` | New functionality | `feat(fw/esp32): add DAC sine sweep` |
+| `fix` | Bug fix | `fix(fw/nano): set external ADC reference before first read` |
+| `docs` | Documentation and research logs | `docs(logs): 2026-10-14 — repository setup` |
+| `chore` | Maintenance, configuration and dependencies | `chore(deps): pin Python dependencies` |
+| `refactor` | Code restructuring without behavioral change | `refactor(sim): separate fault injection module` |
+| `test` | Adding or updating tests | `test(ml): verify feature extraction on reference input` |
+| `data` | Measured or generated datasets | `data(real): session 07 — C1 +100% drift, all devices` |
+| `hw` | Changes to the physical test setup | `hw(circuit1): add series protection resistor` |
+| `exp` | Experiment runs and their results | `exp(rq1): evaluate simulation-trained model on ESP32 data` |
+
+The first six types are standard in the Conventional Commits ecosystem. `data`, `hw` and `exp` are project-specific types for research artifacts.
+
+### Scopes
+
+| Scope | Covers |
+|---|---|
+| `fw/esp32`, `fw/nano`, `fw/pico2w` | Firmware for each device |
+| `sim` | Circuit simulation and fault injection |
+| `ml` | Model training and evaluation |
+| `real`, `parts` | Physical measurements; component inventory |
+| `circuit1`, `circuit2` | Physical circuits under test |
+| `rq1` – `rq4` | Experiments for each research question |
+| `readme`, `logs` | Documentation |
+| `deps` | Python dependencies |
 
 ## License
 

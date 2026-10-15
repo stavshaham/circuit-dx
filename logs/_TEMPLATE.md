@@ -6,7 +6,7 @@
 
 ## Goal for this session
 
-- <what you planned to do>
+- <what I planned to do>
 
 ## What I did
 
@@ -22,15 +22,15 @@
 
 ## Results / observations
 
-- <what you saw, with numbers where possible>
+- <what I saw, with numbers where possible>
 
 ## Surprises and problems
 
-- <anything unexpected, and how you handled it>
+- <anything unexpected, and how I handled it>
 
 ## Decisions
 
-- <choices made and why — future you will want to know>
+- <choices made and why — future me will want to know>
 
 ## Reading notes
 
