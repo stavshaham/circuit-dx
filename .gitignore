@@ -1,4 +1,16 @@
-# Git will ignore these files and will not push them into git.
+# Files and folders Git should not track
+
+# Python
 .venv/
 __pycache__/
+
+# Editors and operating system
 .idea/
+.DS_Store
+
+# Arduino build output (created by Sketch → Export Compiled Binary)
+firmware/**/build/
+
+# Libraries installed by the Arduino IDE; only our own Goertzel library is tracked
+firmware/libraries/*
+!firmware/libraries/Goertzel/
