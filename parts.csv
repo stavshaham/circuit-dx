@@ -1,28 +1,28 @@
 id,type,nominal,unit,marking,measured,measured_on,source,notes
-R10k-a,resistor,10000,ohm,brown-black-orange,10.03k,10/15/2026,Miuzei kit,
-R10k-b,resistor,10000,ohm,brown-black-orange,9.79k,10/15/2026,Miuzei kit,
-R10k-c,resistor,10000,ohm,brown-black-orange,9.90k,10/15/2026,Miuzei kit,
-R10k-d,resistor,10000,ohm,brown-black-orange,9.95k,10/15/2026,Miuzei kit,
-R10k-e,resistor,10000,ohm,brown-black-orange,9.98k,10/15/2026,Miuzei kit,
-R10k-f,resistor,10000,ohm,brown-black-orange,9.63k,10/15/2026,Miuzei kit,
-R10k-g,resistor,10000,ohm,brown-black-orange,9.79k,10/15/2026,Miuzei kit,
-R10k-h,resistor,10000,ohm,brown-black-orange,10.03k,10/15/2026,Miuzei kit,
-R1k-a,resistor,1000,ohm,brown-black-red,.991k,10/15/2026,Miuzei kit,
-R1k-b,resistor,1000,ohm,brown-black-red,.990k,10/15/2026,Miuzei kit,
-R1k-c,resistor,1000,ohm,brown-black-red,.980k,10/15/2026,Miuzei kit,
-R1k-d,resistor,1000,ohm,brown-black-red,.980k,10/15/2026,Miuzei kit,
-R2k-a,resistor,2000,ohm,red-black-red,2.00k,10/15/2026,Miuzei kit,
-R2k-b,resistor,2000,ohm,red-black-red,2.00k,10/15/2026,Miuzei kit,
-C104-a,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-b,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-c,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-d,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-e,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-f,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-g,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-h,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-i,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C104-j,capacitor,100,nF,104,0 -> 0L,10/15/2026,Miuzei kit,ceramic
-C10u-a,capacitor,10000,nF,10uF,0 -> 0L,10/15/2026,Miuzei kit,electrolytic; Circuit 2 bias only
-P20k-a,potentiometer,20000,ohm,20K,20k,10/15/2026,WH148 kit,set and measured per session; record setting in that day's log
-P20k-b,potentiometer,20000,ohm,20K,20k,10/15/2026,WH148 kit,set and measured per session; record setting in that day's log
+R10k-a,resistor,10000,ohm,brown-black-orange,10030,10/15/26,Miuzei kit,
+R10k-b,resistor,10000,ohm,brown-black-orange,9800,10/17/26,Miuzei kit,
+R10k-c,resistor,10000,ohm,brown-black-orange,9700,10/17/26,Miuzei kit,
+R10k-d,resistor,10000,ohm,brown-black-orange,9980,10/17/26,Miuzei kit,
+R10k-e,resistor,10000,ohm,brown-black-orange,9980,10/15/26,Miuzei kit,
+R10k-f,resistor,10000,ohm,brown-black-orange,9630,10/15/26,Miuzei kit,
+R10k-g,resistor,10000,ohm,brown-black-orange,9790,10/15/26,Miuzei kit,
+R10k-h,resistor,10000,ohm,brown-black-orange,10030,10/15/26,Miuzei kit,
+R1k-a,resistor,1000,ohm,brown-black-red,991,10/15/26,Miuzei kit,
+R1k-b,resistor,1000,ohm,brown-black-red,990,10/15/26,Miuzei kit,
+R1k-c,resistor,1000,ohm,brown-black-red,980,10/15/26,Miuzei kit,
+R1k-d,resistor,1000,ohm,brown-black-red,980,10/15/26,Miuzei kit,
+R2k-a,resistor,2000,ohm,red-black-red,2000,10/15/26,Miuzei kit,
+R2k-b,resistor,2000,ohm,red-black-red,2000,10/15/26,Miuzei kit,
+C104-a,capacitor,100,nF,104,118,10/17/26,Miuzei kit,ceramic (nF)
+C104-b,capacitor,100,nF,104,92.1,10/17/26,Miuzei kit,ceramic (nF)
+C104-c,capacitor,100,nF,104,103.8,10/15/26,Miuzei kit,ceramic (nF)
+C104-d,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C104-e,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C104-f,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C104-g,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C104-h,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C104-i,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C104-j,capacitor,100,nF,104,0 -> 0L,10/15/26,Miuzei kit,ceramic (nF)
+C10u-a,capacitor,10000,nF,10uF,0 -> 0L,10/15/26,Miuzei kit,electrolytic; Circuit 2 bias only
+P20k-a,potentiometer,20000,ohm,20K,20k,10/15/26,WH148 kit,set and measured per session; record setting in that day's log
+P20k-b,potentiometer,20000,ohm,20K,20k,10/15/26,WH148 kit,set and measured per session; record setting in that day's log
